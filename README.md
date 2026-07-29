@@ -20,3 +20,7 @@ python -m venv venv
 source venv/bin/activate       # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
+## Chunking decisions
+- Chunk size: 500 chars, overlap: 50 chars — balances context preservation vs. embedding focus.
+- Whitespace collapsed before chunking (PDF extraction leaves ragged line breaks).
+- Trailing chunks under 100 chars get merged into the previous chunk instead of staying as noise.
