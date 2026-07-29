@@ -1,18 +1,19 @@
 """Split text into overlapping fixed-size chunks."""
 
 
-def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> list[str]:
+def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50, min_chunk_size: int = 100) -> list[str]:
     """
     Splits text into chunks of `chunk_size` characters, with `overlap`
     characters repeated between consecutive chunks so context isn't lost
-    at chunk boundaries.
+    at chunk boundaries. Trailing chunks smaller than `min_chunk_size`
+    get merged into the previous chunk instead of staying tiny/useless.
     """
     if chunk_size <= 0:
         raise ValueError("chunk_size must be positive")
     if overlap >= chunk_size:
         raise ValueError("overlap must be smaller than chunk_size")
 
-    text = text.strip()
+    text = " ".join(text.split())  # collapse repeated whitespace/newlines
     if not text:
         return []
 
@@ -23,7 +24,12 @@ def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> list[str]
         chunk = text[start:end].strip()
         if chunk:
             chunks.append(chunk)
-        start += chunk_size - overlap  # step forward, minus the overlap
+        start += chunk_size - overlap
+
+    # merge a too-small trailing chunk into the previous one
+    if len(chunks) > 1 and len(chunks[-1]) < min_chunk_size:
+        chunks[-2] = chunks[-2] + " " + chunks[-1]
+        chunks.pop()
 
     return chunks
 
