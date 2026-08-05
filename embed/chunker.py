@@ -29,6 +29,33 @@ def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50, min_chunk_si
     return chunks
 
 
+def dedupe_chunks(chunks: list[dict], similarity_threshold: float = 0.95) -> list[dict]:
+    """
+    Removes chunks whose text is near-identical to a previous chunk.
+    Uses simple normalized text comparison (cheap, no embedding needed) —
+    catches exact/near-exact duplicates from chunk overlap, not semantic dupes.
+    """
+    seen = []
+    deduped = []
+
+    for chunk in chunks:
+        normalized = " ".join(chunk["text"].lower().split())
+        is_dupe = False
+        for prev in seen:
+            overlap = len(set(normalized.split()) & set(prev.split()))
+            union = len(set(normalized.split()) | set(prev.split()))
+            if union > 0 and overlap / union > similarity_threshold:
+                is_dupe = True
+                break
+        if not is_dupe:
+            seen.append(normalized)
+            deduped.append(chunk)
+
+    removed = len(chunks) - len(deduped)
+    if removed:
+        print(f"Deduped {removed} near-identical chunk(s)")
+    return deduped
+
 def chunk_pages_with_metadata(pages: list[dict], source_file: str, subject: str,
                                 chunk_size: int = 500, overlap: int = 50) -> list[dict]:
     """
@@ -48,8 +75,7 @@ def chunk_pages_with_metadata(pages: list[dict], source_file: str, subject: str,
                 "subject": subject,
             })
 
-    return tagged_chunks
-
+    return dedupe_chunks(tagged_chunks)
 
 if __name__ == "__main__":
     import sys
