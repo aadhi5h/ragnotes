@@ -51,6 +51,24 @@ def store_chunks(embedded_chunks_path: str = "data/embedded_chunks.json"):
     print(f"Stored {len(chunks)} chunks in Chroma collection '{COLLECTION_NAME}'")
     print(f"Collection now has {collection.count()} total items")
 
+def query_collection(query_text: str, n_results: int = 5, subject: str = None):
+    """
+    Embeds the query text and returns the n_results most similar chunks.
+    Optionally filter by subject.
+    """
+    from embed.embedder import embed_texts
+
+    collection = get_collection()
+    query_embedding = embed_texts([query_text])[0]
+
+    where = {"subject": subject} if subject else None
+
+    results = collection.query(
+        query_embeddings=[query_embedding],
+        n_results=n_results,
+        where=where,
+    )
+    return results
 
 if __name__ == "__main__":
     import sys
