@@ -9,7 +9,12 @@ def ask_ollama(prompt: str) -> str:
     """Sends a prompt to the local Ollama server, returns the full response text."""
     response = requests.post(
         OLLAMA_URL,
-        json={"model": MODEL, "prompt": prompt, "stream": False},
+        json={
+            "model": MODEL,
+            "prompt": prompt,
+            "stream": False,
+            "options": {"num_predict": 512},
+        },
         timeout=120,
     )
     response.raise_for_status()
