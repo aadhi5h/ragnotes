@@ -14,7 +14,10 @@ def ask_ollama(prompt: str) -> str:
                 "model": MODEL,
                 "prompt": prompt,
                 "stream": False,
-                "options": {"num_predict": 512},
+                "options": {
+                    "num_predict": 512,
+                    "num_ctx": 4096,
+                },
             },
             timeout=120,
         )

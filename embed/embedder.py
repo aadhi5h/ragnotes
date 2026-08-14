@@ -1,4 +1,8 @@
 """Embed text chunks into vectors using all-MiniLM-L6-v2."""
+import os
+os.environ["HF_HUB_OFFLINE"] = "1"
+os.environ["TRANSFORMERS_OFFLINE"] = "1"
+
 import json
 from pathlib import Path
 from sentence_transformers import SentenceTransformer
