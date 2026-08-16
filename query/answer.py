@@ -35,7 +35,7 @@ def ask(question: str, subject: str = None, n_results: int = 5) -> dict:
 def format_answer(result: dict) -> str:
     """Pretty-prints an answer with its sources for CLI display."""
     lines = [result["answer"], ""]
-    if result["sources"]:
+    if result["sources"] and result["answer"] != "I don't have that in your notes.":
         lines.append("Sources:")
         for s in result["sources"]:
             page_info = f", p{s['page']}" if s["page"] else ""
