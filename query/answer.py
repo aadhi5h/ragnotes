@@ -3,6 +3,8 @@ from query.retriever import retrieve
 from query.prompt import build_prompt
 from query.llm import ask_ollama
 
+CONFIDENCE_THRESHOLD = 0.9  # distances above this are treated as "not relevant"
+
 
 def ask(question: str, subject: str = None, n_results: int = 5) -> dict:
     """
@@ -11,7 +13,8 @@ def ask(question: str, subject: str = None, n_results: int = 5) -> dict:
     """
     chunks = retrieve(question, n_results=n_results, subject=subject)
 
-    if not chunks:
+    # no chunks at all, or best match is too weak to trust
+    if not chunks or chunks[0]["distance"] > CONFIDENCE_THRESHOLD:
         return {
             "answer": "I don't have that in your notes.",
             "sources": [],
@@ -20,7 +23,6 @@ def ask(question: str, subject: str = None, n_results: int = 5) -> dict:
     prompt = build_prompt(question, chunks)
     answer = ask_ollama(prompt)
 
-    # dedupe sources by (file, page) - multiple chunks can come from the same page
     seen = set()
     sources = []
     for c in chunks:
