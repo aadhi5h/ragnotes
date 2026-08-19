@@ -49,6 +49,9 @@ def main():
     if args.command == "ingest":
         update_all(args.folder)
     elif args.command == "ask":
+        if not args.question.strip():
+            print("Error: question cannot be empty.")
+            sys.exit(1)
         try:
             result = ask(args.question, subject=args.subject)
             print(format_answer(result))
